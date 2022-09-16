@@ -1,16 +1,15 @@
-import { getOptionsForVote } from "@/utils/getRandomPokemon";
+import { trpc } from "@/utils/trpc";
 import type { NextPage } from "next";
-import { useEffect, useState } from "react";
-
+import Image from "next/future/image";
 const Home: NextPage = () => {
-  const [first, setFirst] = useState(0);
-  const [second, setSecond] = useState(0);
+  const { data, isLoading } = trpc.useQuery(["pokemon.get-pair"]);
 
-  useEffect(() => {
-    const [first, second] = getOptionsForVote();
-    setFirst(first);
-    setSecond(second);
-  }, []);
+  console.log(data);
+
+  if (isLoading) return <div>...Loading</div>;
+
+  const first = data?.[0];
+  const second = data?.[1];
 
   return (
     <div>
@@ -18,8 +17,17 @@ const Home: NextPage = () => {
       <div className="max-w-2xl mx-auto flex flex-col px-32 sm:px-0 sm:flex-row justify-between gap-5 sm:gap-10 sm:items-center">
         {/* First Mon */}
         <div className="flex-1 flex flex-col gap-5 items-center">
-          <div className="text-2xl font-bold">{first}</div>
-          <div className="w-full aspect-square border">First</div>
+          <div className="text-2xl font-bold">{first?.forms[0].name}</div>
+          <div className="relative w-full aspect-square">
+            <Image
+              src={`${first?.sprites.back_default}`}
+              alt=""
+              fill
+              sizes="(max-width: 639px) 100vw,
+              50vw"
+              priority
+            />
+          </div>
           <button className="bg-white text-zinc-700 font-semibold px-5 py-2 rounded-full hover:scale-105 duration-300">
             Rounder
           </button>
@@ -29,8 +37,17 @@ const Home: NextPage = () => {
 
         {/* Second Mon */}
         <div className="flex-1 flex flex-col gap-5 items-center">
-          <div className="text-2xl font-bold">{second}</div>
-          <div className="w-full aspect-square border">Second</div>
+          <div className="text-2xl font-bold">{second?.forms[0].name}</div>
+          <div className="relative w-full aspect-square">
+            <Image
+              src={`${second?.sprites.back_default}`}
+              alt=""
+              fill
+              sizes="(max-width: 639px) 100vw,
+              50vw"
+              priority
+            />
+          </div>
           <button className="bg-white text-zinc-700 font-semibold px-5 py-2 rounded-full hover:scale-105 duration-300">
             Rounder
           </button>
