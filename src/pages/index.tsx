@@ -1,5 +1,5 @@
 import Loader from "@/components/Loader";
-import { trpc } from "@/utils/trpc";
+import { inferQueryOutput, trpc } from "@/utils/trpc";
 import type { NextPage } from "next";
 import Image from "next/future/image";
 import Link from "next/link";
@@ -7,15 +7,17 @@ import { useState } from "react";
 import clsx from "clsx";
 
 const Home: NextPage = () => {
+  const client = trpc.useContext();
   const { data } = trpc.useQuery(["pokemon.get-pair"], {
     refetchInterval: false,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
   });
 
-  console.log(data);
-
-  // if (isLoading) return <div>...Loading</div>;
+  const vote = (winnerId: number) => {
+    console.log(`${winnerId} wins`);
+    client.invalidateQueries(["pokemon.get-pair"]);
+  };
 
   const first = data?.[0];
   const second = data?.[1];
@@ -33,16 +35,16 @@ const Home: NextPage = () => {
       )}
 
       {/* Vote */}
-      {data && (
+      {first && second && (
         <div className="w-full max-w-2xl mx-auto flex items-center justify-center py-24 sm:py-0">
           <div className="w-full flex flex-col px-32 sm:px-0 sm:flex-row justify-between gap-20 sm:gap-10 sm:items-center">
             {/* First pokemon */}
             <div className="flex-1 flex flex-col items-center">
-              <div className="text-2xl font-bold capitalize -mb-5">
-                {first?.forms[0].name}
-              </div>
-              <PokemonImage src={`${first?.sprites.front_default}`} />
-              <button className="bg-white text-zinc-700 font-semibold px-5 py-2 rounded-full hover:scale-105 duration-300">
+              <Candidate pokemon={first} />
+              <button
+                onClick={() => vote(first.id)}
+                className="bg-white text-zinc-700 font-semibold px-5 py-2 rounded-full hover:scale-105 duration-300"
+              >
                 Rounder
               </button>
             </div>
@@ -51,11 +53,11 @@ const Home: NextPage = () => {
 
             {/* Second pokemon */}
             <div className="flex-1 flex flex-col items-center">
-              <div className="text-2xl font-bold capitalize -mb-5">
-                {second?.forms[0].name}
-              </div>
-              <PokemonImage src={`${second?.sprites.front_default}`} />
-              <button className="bg-white text-zinc-700 font-semibold px-5 py-2 rounded-full hover:scale-105 duration-300">
+              <Candidate pokemon={second} />
+              <button
+                onClick={() => vote(second.id)}
+                className="bg-white text-zinc-700 font-semibold px-5 py-2 rounded-full hover:scale-105 duration-300"
+              >
                 Rounder
               </button>
             </div>
@@ -100,6 +102,21 @@ const PokemonImage = ({ src }: { src: string }) => {
         })}
       />
     </div>
+  );
+};
+
+const Candidate = ({
+  pokemon,
+}: {
+  pokemon: inferQueryOutput<"pokemon.by-id">;
+}) => {
+  return (
+    <>
+      <div className="text-2xl font-bold capitalize -mb-5">
+        {pokemon.forms[0].name}
+      </div>
+      <PokemonImage src={`${pokemon.sprites.front_default}`} />
+    </>
   );
 };
 
