@@ -8,6 +8,7 @@ import DefaultLayout from "@/components/DefaultLayout";
 import { AppType } from "next/dist/shared/lib/utils";
 import { withTRPC } from "@trpc/next";
 import superjson from "superjson";
+import { AppRouter } from "@/server/router";
 
 export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
   getLayout?: (page: ReactElement) => ReactNode;
@@ -30,7 +31,7 @@ const getBaseUrl = () => {
   return "http://localhost:3000";
 };
 
-export default withTRPC({
+export default withTRPC<AppRouter>({
   config() {
     const url = `${getBaseUrl()}/api/trpc`;
 
