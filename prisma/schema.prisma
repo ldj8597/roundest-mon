@@ -29,4 +29,7 @@ model Vote {
 
   loser   Pokemon @relation("loser", fields: [loserId], references: [id])
   loserId Int
+
+  @@index([winnerId])
+  @@index([loserId])
 }

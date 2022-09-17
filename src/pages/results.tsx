@@ -11,14 +11,14 @@ const Results: NextPageWithLayout = () => {
       <h1 className="text-4xl font-bold text-center">Ranking</h1>
 
       {isLoading && (
-        <div className="flex justify-center items-center">
+        <div className="absolute h-screen w-full top-0 left-0 flex justify-center items-center">
           <Loader />
         </div>
       )}
 
-      <div className="border divide-y">
-        {data &&
-          data.map((pokemon, index) => (
+      {data && (
+        <div className="border divide-y">
+          {data.map((pokemon, index) => (
             <div
               key={pokemon.id}
               className="relative pl-10 pr-5 py-1 flex items-center justify-between"
@@ -52,7 +52,8 @@ const Results: NextPageWithLayout = () => {
               </div>
             </div>
           ))}
-      </div>
+        </div>
+      )}
     </div>
   );
 };

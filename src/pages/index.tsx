@@ -50,7 +50,11 @@ const Home: NextPage = () => {
         </div>
       )}
 
-      {submitting && <div className="text-center">Submitting</div>}
+      {submitting && (
+        <div className="absolute h-screen w-full top-0 left-0 flex justify-center items-center">
+          <Loader />
+        </div>
+      )}
 
       {/* Footer */}
       <Footer />
