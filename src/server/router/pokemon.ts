@@ -89,4 +89,29 @@ export const pokemonRouter = createRouter()
         });
       }
     },
+  })
+  .query("ranking", {
+    async resolve({ ctx }) {
+      try {
+        return await ctx.prisma.pokemon.findMany({
+          include: {
+            _count: {
+              select: {
+                votesWon: true,
+                votesLost: true,
+              },
+            },
+          },
+          orderBy: {
+            votesWon: {
+              _count: "desc",
+            },
+          },
+        });
+      } catch (error) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+        });
+      }
+    },
   });

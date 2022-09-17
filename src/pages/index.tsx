@@ -9,23 +9,26 @@ export type VoteFunction = (winnerId: number) => void;
 const Home: NextPage = () => {
   const client = trpc.useContext();
 
-  const { data: pair } = trpc.useQuery(["pokemon.get-pair"], {
+  const { data: pair, isFetching } = trpc.useQuery(["pokemon.get-pair"], {
     refetchInterval: false,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
   });
 
-  const { mutate, isLoading } = trpc.useMutation("pokemon.vote");
+  const { mutate, isLoading: submitting } = trpc.useMutation("pokemon.vote", {
+    onSuccess() {},
+  });
 
   const vote: VoteFunction = (winnerId) => {
-    if (isLoading) return;
+    if (submitting) return;
     if (!pair) return;
 
     if (winnerId === pair.firstPokemon.id) {
-      console.log("first won");
+      mutate({ winnerId: winnerId, loserId: pair.secondPokemon.id });
     } else {
-      console.log("second won");
+      mutate({ winnerId: winnerId, loserId: pair.firstPokemon.id });
     }
+    client.invalidateQueries(["pokemon.get-pair"]);
   };
 
   return (
@@ -41,11 +44,13 @@ const Home: NextPage = () => {
       )}
 
       {/* Vote */}
-      {pair && (
+      {!submitting && !isFetching && pair && (
         <div className="w-full max-w-3xl mx-auto flex items-center justify-center py-24 sm:py-0">
           <Vote candidates={pair} vote={vote} />
         </div>
       )}
+
+      {submitting && <div className="text-center">Submitting</div>}
 
       {/* Footer */}
       <Footer />
