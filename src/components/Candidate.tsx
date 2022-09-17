@@ -4,19 +4,18 @@ import PokemonImage from "./PokemonImage";
 
 type Props = {
   pokemon: inferQueryOutput<"pokemon.by-id">;
-  enemy: inferQueryOutput<"pokemon.by-id">;
   vote: VoteFunction;
 };
 
-const Candidate = ({ pokemon, enemy, vote }: Props) => {
+const Candidate = ({ pokemon, vote }: Props) => {
   return (
     <div className="flex-1 flex flex-col items-center">
       <div className="text-2xl font-bold capitalize -mb-5">
-        {pokemon.forms[0].name}
+        {pokemon?.forms[0].name}
       </div>
       <PokemonImage src={`${pokemon.sprites.front_default}`} />
       <button
-        onClick={() => vote({ winnerId: pokemon.id, loserId: enemy.id })}
+        onClick={() => vote(pokemon.id)}
         className="bg-white text-zinc-700 font-semibold px-5 py-2 rounded-full hover:scale-105 duration-300"
       >
         Rounder

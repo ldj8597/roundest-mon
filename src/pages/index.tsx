@@ -4,18 +4,12 @@ import type { NextPage } from "next";
 import Footer from "@/components/Footer";
 import Vote from "@/components/Vote";
 
-export type VoteFunction = ({
-  winnerId,
-  loserId,
-}: {
-  winnerId: number;
-  loserId: number;
-}) => void;
+export type VoteFunction = (winnerId: number) => void;
 
 const Home: NextPage = () => {
   const client = trpc.useContext();
 
-  const { data } = trpc.useQuery(["pokemon.get-pair"], {
+  const { data: pair } = trpc.useQuery(["pokemon.get-pair"], {
     refetchInterval: false,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
@@ -23,10 +17,15 @@ const Home: NextPage = () => {
 
   const { mutate, isLoading } = trpc.useMutation("pokemon.vote");
 
-  const vote: VoteFunction = ({ winnerId, loserId }) => {
+  const vote: VoteFunction = (winnerId) => {
     if (isLoading) return;
+    if (!pair) return;
 
-    console.log(winnerId, loserId);
+    if (winnerId === pair.firstPokemon.id) {
+      console.log("first won");
+    } else {
+      console.log("second won");
+    }
   };
 
   return (
@@ -35,16 +34,16 @@ const Home: NextPage = () => {
       <h2 className="text-2xl text-center">Which Pokémon is Rounder?</h2>
 
       {/* Loader */}
-      {!data && (
+      {!pair && (
         <div className="w-full flex items-center justify-center">
           <Loader />
         </div>
       )}
 
       {/* Vote */}
-      {data && (
+      {pair && (
         <div className="w-full max-w-3xl mx-auto flex items-center justify-center py-24 sm:py-0">
-          <Vote candidates={data} vote={vote} />
+          <Vote candidates={pair} vote={vote} />
         </div>
       )}
 

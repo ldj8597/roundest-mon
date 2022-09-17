@@ -21,7 +21,10 @@ export const pokemonRouter = createRouter()
       const first = await api.getPokemonById(firstId);
       const second = await api.getPokemonById(secondId);
 
-      return [first, second];
+      return {
+        firstPokemon: first,
+        secondPokemon: second,
+      };
     },
   })
   .mutation("vote", {
