@@ -2,6 +2,7 @@ import { z } from "zod";
 import { createRouter } from "./context";
 import { PokemonClient } from "pokenode-ts";
 import { getOptionsForVote } from "@/utils/getRandomPokemon";
+import { TRPCError } from "@trpc/server";
 
 const api = new PokemonClient();
 
@@ -21,5 +22,24 @@ export const pokemonRouter = createRouter()
       const second = await api.getPokemonById(secondId);
 
       return [first, second];
+    },
+  })
+  .mutation("vote", {
+    input: z.object({
+      winnerId: z.number().int().positive(),
+      loserId: z.number().int().positive(),
+    }),
+    async resolve({ input, ctx }) {
+      try {
+        return await ctx.prisma.vote.create({
+          data: {
+            ...input,
+          },
+        });
+      } catch (error) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+        });
+      }
     },
   });

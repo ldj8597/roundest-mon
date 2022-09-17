@@ -4,17 +4,29 @@ import type { NextPage } from "next";
 import Footer from "@/components/Footer";
 import Vote from "@/components/Vote";
 
+export type VoteFunction = ({
+  winnerId,
+  loserId,
+}: {
+  winnerId: number;
+  loserId: number;
+}) => void;
+
 const Home: NextPage = () => {
   const client = trpc.useContext();
+
   const { data } = trpc.useQuery(["pokemon.get-pair"], {
     refetchInterval: false,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
   });
 
-  const vote = (winnerId: number) => {
-    console.log(`${winnerId} wins`);
-    client.invalidateQueries(["pokemon.get-pair"]);
+  const { mutate, isLoading } = trpc.useMutation("pokemon.vote");
+
+  const vote: VoteFunction = ({ winnerId, loserId }) => {
+    if (isLoading) return;
+
+    console.log(winnerId, loserId);
   };
 
   return (
