@@ -24,10 +24,10 @@ model Vote {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
 
-  winner   Pokemon @relation("winner", fields: [winnerId], references: [id])
+  winner   Pokemon @relation(name: "winner", fields: [winnerId], references: [id])
   winnerId Int
 
-  loser   Pokemon @relation("loser", fields: [loserId], references: [id])
+  loser   Pokemon @relation(name: "loser", fields: [loserId], references: [id])
   loserId Int
 
   @@index([winnerId])
