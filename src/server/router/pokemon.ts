@@ -16,10 +16,54 @@ export const pokemonRouter = createRouter()
     },
   })
   .query("get-pair", {
-    async resolve() {
+    async resolve({ ctx }) {
       const [firstId, secondId] = getOptionsForVote();
-      const first = await api.getPokemonById(firstId);
-      const second = await api.getPokemonById(secondId);
+
+      let first = await ctx.prisma.pokemon.findUnique({
+        where: {
+          id: firstId,
+        },
+      });
+
+      if (!first) {
+        const pokemon = await api.getPokemonById(firstId);
+        if (pokemon) {
+          first = await ctx.prisma.pokemon.create({
+            data: {
+              id: firstId,
+              name: pokemon.forms[0].name,
+              spriteUrl: pokemon.sprites.front_default!,
+            },
+          });
+        } else {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+          });
+        }
+      }
+
+      let second = await ctx.prisma.pokemon.findUnique({
+        where: {
+          id: secondId,
+        },
+      });
+
+      if (!second) {
+        const pokemon = await api.getPokemonById(secondId);
+        if (pokemon) {
+          second = await ctx.prisma.pokemon.create({
+            data: {
+              id: secondId,
+              name: pokemon.forms[0].name,
+              spriteUrl: pokemon.sprites.front_default!,
+            },
+          });
+        } else {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+          });
+        }
+      }
 
       return {
         firstPokemon: first,
